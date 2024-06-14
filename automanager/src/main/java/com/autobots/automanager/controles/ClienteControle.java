@@ -63,6 +63,7 @@ public class ClienteControle {
 			repositorio.save(cliente);
 			status = HttpStatus.CREATED;
 		}
+		adicionadorLink.adicionarLink(cliente);
 		return new ResponseEntity<>(status);
 
 	}
@@ -79,6 +80,7 @@ public class ClienteControle {
 		} else {
 			status = HttpStatus.BAD_REQUEST;
 		}
+		adicionadorLink.adicionarLink(cliente);
 		return new ResponseEntity<>(status);
 	}
 
@@ -90,6 +92,7 @@ public class ClienteControle {
 			repositorio.delete(cliente);
 			status = HttpStatus.OK;
 		}
+		adicionadorLink.adicionarLink(cliente);
 		return new ResponseEntity<>(status);
 	}
 	

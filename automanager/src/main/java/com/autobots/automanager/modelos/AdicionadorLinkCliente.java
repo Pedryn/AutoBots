@@ -27,11 +27,24 @@ public class AdicionadorLinkCliente implements AdicionadorLink<Cliente> {
 
 	@Override
 	public void adicionarLink(Cliente objeto) {
-		Link linkProprio = WebMvcLinkBuilder
+		Link linkLista = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(ClienteControle.class)
 						.obterClientes())
 				.withRel("clientes");
-		objeto.add(linkProprio);
+		objeto.add(linkLista);
+		Link linkDel = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(ClienteControle.class)
+						.excluirCliente(objeto))
+				.withRel("excluir cliente");
+		objeto.add(linkDel);
+		Link linkPut = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(ClienteControle.class)
+						.atualizarCliente(objeto))
+				.withRel("atualizar cliente");
+		objeto.add(linkPut);
+		
 	}
 }

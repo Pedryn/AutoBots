@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Telefone;
@@ -51,6 +52,13 @@ public class TelefoneControle {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/telefone/{id}")
+	public Telefone obterTelefonePorId(@PathVariable Long id) {
+		Telefone telefone = repositorioTelefone.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		adicionadorLink.adicionarLink(telefone);
+		return telefone;
+	}
     
     // Listagem dos Telefones
     @GetMapping("/telefone")

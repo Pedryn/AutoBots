@@ -40,7 +40,6 @@ public class EnderecoControle {
     @PostMapping("/cliente/{clienteId}/endereco")
     public ResponseEntity<?> criarEnderecoParaCliente(@PathVariable long clienteId, @RequestBody Endereco novoEndereco) {
         Cliente cliente = repositorioCliente.findById(clienteId).orElse(null);
-
         if (cliente != null) {
             if (cliente.getEndereco() != null) {
                 return ResponseEntity.badRequest().body("Cliente com o ID " + clienteId + " já possui um endereço.");
@@ -49,6 +48,7 @@ public class EnderecoControle {
 
                 cliente.setEndereco(novoEndereco);
                 repositorioCliente.save(cliente);
+                adicionadorLink.adicionarLink(novoEndereco);
 
                 return new ResponseEntity<>(cliente, HttpStatus.CREATED);
             }
@@ -87,6 +87,7 @@ public class EnderecoControle {
             EnderecoAtualizador atualizador = new EnderecoAtualizador();
             atualizador.atualizar(endereco, atualizacao);
             repositorio.save(endereco);
+            adicionadorLink.adicionarLink(endereco);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

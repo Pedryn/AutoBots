@@ -26,11 +26,26 @@ public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco> {
 
     @Override
     public void adicionarLink(Endereco objeto) {
-        Link linkProprio = WebMvcLinkBuilder
+    	long id = objeto.getId();
+        Link linkLista = WebMvcLinkBuilder
                 .linkTo(WebMvcLinkBuilder
                         .methodOn(EnderecoControle.class)
-                        .obterEndereco(objeto.getId()))
-                .withRel("enderecos");
-        objeto.add(linkProprio);
+                        .obterEnderecos())
+                .withRel("obterEnderecos");
+        Link linkDel = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder
+                        .methodOn(EnderecoControle.class)
+                        .excluirEnderecoPorId(id))
+                .withRel("deletarEnderecos");
+        Link linkPut = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder
+                        .methodOn(EnderecoControle.class)
+                        .atualizarEndereco(id, objeto))
+                .withRel("atualizarEnderecos");
+        
+        
+        objeto.add(linkDel);
+        objeto.add(linkLista);
+        objeto.add(linkPut);
     }
 }

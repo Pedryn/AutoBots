@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Documento;
@@ -37,7 +38,6 @@ public class DocumentoControle {
 	@Autowired
 	private AdicionadorLinkDocumento adicionadorLink;
 	
-	// cadastro documento
 	@Transactional
 	@PostMapping("/cliente/{clienteId}/documento")
 	public ResponseEntity<?> adicionarDocumentoAoCliente(@PathVariable long clienteId, @RequestBody Documento novoDocumento) {
@@ -47,14 +47,21 @@ public class DocumentoControle {
 	        repositorioDocumento.save(novoDocumento);
 	        cliente.addDocumentos(novoDocumento); 
 	        repositorioCliente.save(cliente);
-
+			adicionadorLink.adicionarLink(novoDocumento);
 	        return new ResponseEntity<>(cliente, HttpStatus.CREATED);
 	    } else {
 	        return ResponseEntity.notFound().build();
 	    }
 	}
 	
-	// listagem dos documentos
+	@GetMapping("/documento/{id}")
+    public Documento obterDocumentoPorId(@PathVariable Long id) {
+        Documento documento = repositorioDocumento.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        adicionadorLink.adicionarLink(documento);
+        return documento;
+    }
+	
 	@GetMapping("/documentos")
 	public ResponseEntity<List<Documento>> obterDocumento() {
 		List<Documento> documentos = repositorio.findAll();
@@ -68,23 +75,21 @@ public class DocumentoControle {
 		}
 	}
 	
-	// atualizar documentos
-	@PutMapping("/atualizar/documento")
-	public ResponseEntity<?> atualizarDocumento(@RequestBody Documento atualizacao) {
-		HttpStatus status = HttpStatus.CONFLICT;
-		Documento documento = repositorio.getById(atualizacao.getId());
-		if (documento != null) {
-			DocumentoAtualizador atualizador = new DocumentoAtualizador();
-			atualizador.atualizar(documento, atualizacao);
-			repositorio.save(documento);
-			status = HttpStatus.OK;
-		} else {
-			status = HttpStatus.BAD_REQUEST;
-		}
-		return new ResponseEntity<>(status);
-	}
+	@PutMapping("/documento/atualizar/{id}")
+    public ResponseEntity<Documento> atualizarDocumento(@PathVariable Long id, @RequestBody Documento documento) {
+        Documento documentoExistente = repositorio.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        documentoExistente.setTipo(documento.getTipo());
+        documentoExistente.setNumero(documento.getNumero());
+        
+        documentoExistente = repositorio.save(documentoExistente);
+
+        adicionadorLink.adicionarLink(documentoExistente);
+
+        return new ResponseEntity<>(documentoExistente, HttpStatus.OK);
+    }
 	
-	// excluir documento
 	@DeleteMapping("/documento/{documentoId}")
 	public ResponseEntity<Void> excluirDocumento(@PathVariable long documentoId) {
 	    Documento documento = repositorioDocumento.findById(documentoId).orElse(null);
